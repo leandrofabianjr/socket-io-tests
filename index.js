@@ -17,7 +17,7 @@ io.on('connection', function(socket){
     });
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.NODE_ENV === 'production' ? 443 : 3000;
 http.listen(port, function(){
   console.log('Ouvindo na porta ' + port);
 });
