@@ -17,6 +17,7 @@ io.on('connection', function(socket){
     });
 });
 
-http.listen(process.env.PORT || 3000, function(){
-  console.log('Ouvindo na porta ' + (process.env.PORT || 3000));
+const port = process.env.PORT || 3000;
+http.listen(port, function(){
+  console.log('Ouvindo na porta ' + port);
 });
