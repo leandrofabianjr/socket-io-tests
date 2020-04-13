@@ -1,40 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Material design -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
     <title>Chat</title>
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font: 13px Helvetica, Arial; }
-        form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-        form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-        form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-        #messages { list-style-type: none; margin: 0; padding: 0; }
-        #messages li { padding: 5px 10px; }
-        #messages li:nth-child(odd) { background: #eee; }
-      </style>
-      
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font: 13px Helvetica, Arial;
+            padding: 8px;
+            height: 100%;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,.45);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        form {
+            padding: 8px;
+            background-color: #673AB7;
+        }
+
+        #input-container {
+            background-color: white;
+            display: flex;
+            flex-direction: row;
+            border-radius: 24px;
+            width: 100%;
+            height: 48px;
+            overflow: hidden;
+        }
+
+        #input-container input {
+            padding-left: 16px;
+            align-items: center;
+            border: 0;
+            width: 90%;
+            height: 100%;
+            margin-right: .5%;
+            font-size: 16px;
+            color: #3A3A2F;
+        }
+
+        #input-container button {
+            width: 9%;
+            background: transparent;
+            border: none;
+            color: #673AB7;
+        }
+
+        #messages {
+            flex: 1;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+            color: #3A3A2F;
+        }
+
+        #messages li {
+            padding: 4px 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .balloon-others {
+            position: relative;
+            background: #ddd;
+            border-radius: 0 .4em .4em .4em;
+            padding: 8px;
+            align-self: flex-start;
+        }
+
+        .balloon-others:after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 0;
+            height: 0;
+            border: 8px solid transparent;
+            border-right-color: #ddd;
+            border-left: 0;
+            border-top: 0;
+            margin-top: -17px;
+            margin-left: -8px;
+        }
+
+        .balloon-my {
+            position: relative;
+	        border-radius: .4em .4em 0 .4em;
+            background: #c2b0e2;
+            padding: 8px;
+            align-self: flex-end;
+        }
+
+        .balloon-my:after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            width: 0;
+            height: 0;
+            border: 8px solid transparent;
+            border-left-color: #c2b0e2;
+            border-right: 0;
+            border-bottom: 0;
+            margin-top: 9px;
+            margin-right: -8px;
+        }
+
+    </style>
+
 </head>
+
 <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
+    <div id="container">
+        <ul id="messages">
+            <li><div class="balloon-others">fgdh</div></li>
+            <li><div class="balloon-my">fgdh</div></li>
+            <li><div class="balloon-others">fgdh</div></li>
+            <li><div class="balloon-my">fgdh</div></li>
+            <li><div class="balloon-others">fgdh</div></li>
+            <li><div class="balloon-my">fgdh</div></li>
+        </ul>
+        <form action="">
+            <div id="input-container">
+                <input id="m" autocomplete="off" />
+                <button>
+                    <i class="material-icons" aria-hidden="true">send</i>
+                </button>
+            </div>
+        </form>
+    </div>
 </body>
 <script src="/socket.io/socket.io.js"></script>
 <script>
+    function uuidv4() {
+        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
+    }
+
     var socket = io();
+    var myUuid = uuidv4();
 
     document.querySelector('form').addEventListener('submit', e => {
         e.preventDefault();
-        socket.emit('chat message', document.querySelector('#m').value);
+        let $m = document.querySelector('#m')
+        socket.emit('chat message', {
+            authorId: myUuid,
+            message: $m.value
+        });
+        $m.value = '';
     })
 
     socket.on('chat message', msg => {
         let $li = document.createElement('li');
-        $li.textContent = msg;
+        let $balloon = document.createElement('span');
+        $balloon.classList.add(msg.authorId === myUuid ? 'balloon-my' : 'balloon-others');
+        $balloon.textContent = msg.message;
+        $li.appendChild($balloon);
         document.querySelector('#messages').appendChild($li);
     });
+
+    
 </script>
+
 </html>

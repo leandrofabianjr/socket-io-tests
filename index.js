@@ -11,7 +11,8 @@ io.on('connection', function(socket){
         console.log('Usuário desconectado');
     });
     socket.on('chat message', function(msg){
-        console.log('mensagem: ' + msg);
+        console.log('uuid: ' + msg.authorId);
+        console.log('mensagem: ' + msg.message);
         io.emit('chat message', msg);
     });
 });
