@@ -1,9 +1,16 @@
 var app = require('express')();
-var http = require('http').createServer(app);
-var io = require('socket.io')(http);
+var socketIO = require('socket.io');
+
+const PORT = process.env.PORT || 3000;
 
 app.get('/chat', (req, res) => res.sendFile(__dirname + '/chat.html'));
 app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
+
+const server = app.listen(PORT, function(){
+  console.log('Ouvindo na porta ' + PORT);
+});
+
+const io = socketIO(server);
 
 io.on('connection', function(socket){
     console.log('Um usuário conectado');
@@ -15,9 +22,4 @@ io.on('connection', function(socket){
         console.log('mensagem: ' + msg.message);
         io.emit('chat message', msg);
     });
-});
-
-const port = process.env.NODE_ENV === 'production' ? 443 : 3000;
-http.listen(port, function(){
-  console.log('Ouvindo na porta ' + port);
 });
